@@ -94,7 +94,7 @@ internal fun LocationHooker.hookLocationProviders(classLoader: ClassLoader, curr
                 // 强制启动代理注入，无论当前active是true还是false。
                 // 真正的状态校验在代理注入器的Timer中进行。
 
-                val args = chain.args
+                val args = chain.args.toTypedArray()
                 for (i in args.indices) {
                     val arg = args[i] ?: continue
 
@@ -120,14 +120,18 @@ internal fun LocationHooker.hookLocationProviders(classLoader: ClassLoader, curr
 
                     if (isOnNmea) {
                         XposedBridge.log("[GPS_Spoofer] Detected addNmeaListener(OnNmeaMessageListener)! Starting active injector.")
-                        args[i] = createOnNmeaMessageListenerProxy(arg, classLoader)
+                        args[i] = synchronized(nmeaListenerProxies) {
+                            nmeaListenerProxies.getOrPut(arg) { createOnNmeaMessageListenerProxy(arg, classLoader) }
+                        }
                     } else if (isGpsNmea) {
                         XposedBridge.log("[GPS_Spoofer] Detected addNmeaListener(GpsStatus.NmeaListener)! Starting active injector.")
-                        args[i] = createGpsStatusNmeaListenerProxy(arg, classLoader)
+                        args[i] = synchronized(nmeaListenerProxies) {
+                            nmeaListenerProxies.getOrPut(arg) { createGpsStatusNmeaListenerProxy(arg, classLoader) }
+                        }
                     }
                 }
 
-                return@hookAllMethods chain.proceed(chain.args.toTypedArray())
+                return@hookAllMethods chain.proceed(args)
             }
 
             // Hook 取消注册 NmeaListener
@@ -135,15 +139,17 @@ internal fun LocationHooker.hookLocationProviders(classLoader: ClassLoader, curr
                 locationManagerClazz,
                 "removeNmeaListener"
             ) { chain, method ->
-
-                for (arg in chain.args) {
+                val args = chain.args.toTypedArray()
+                for (i in args.indices) {
+                    val arg = args[i]
                     if (arg != null) {
                         nmeaTimers.remove(arg)?.cancel()
+                        nmeaListenerProxies.remove(arg)?.let { args[i] = it }
                         XposedBridge.log("[GPS_Spoofer] removeNmeaListener called, canceled timer.")
                     }
                 }
 
-                return@hookAllMethods chain.proceed(chain.args.toTypedArray())
+                return@hookAllMethods chain.proceed(args)
             }
         } catch (e: Throwable) {
             XposedBridge.log(e)
@@ -361,71 +367,15 @@ internal fun LocationHooker.hookLocationProviders(classLoader: ClassLoader, curr
             XposedBridge.log("[LocationSpoofer] Failed to hook requestLocationUpdates/getCurrentLocation: $e")
         }
 
-        // getLastKnownLocation: 立即返回伪造的位置，修复“需要多次尝试才能定位”的问题
+        // Return a fully materialized fix before entering Binder/Parcel when simulation is active.
         try {
-            val locationManagerClazz2 =
-                XposedHelpers.findClass("android.location.LocationManager", classLoader)
-            XposedHelpers.hookAllMethods(
-                locationManagerClazz2,
-                "getLastKnownLocation"
-            ) { chain, method ->
-                var result = chain.proceed(chain.args.toTypedArray())
-
-                // 宿主 App 自身需要获取真实位置（"定位到当前位置"功能）
-                // 不拦截宿主 App 的 getLastKnownLocation，只拦截目标 App 的
-                val hostPkg = currentPkg.substringBefore(":")
-                if (hostPkg == "com.vincenthzr.locationspoofer") return@hookAllMethods result
-
-                val config = readConfig()
-                if (config == null || !config.optBoolean(
-                        "active",
-                        false
-                    )
-                ) return@hookAllMethods result
-                val provider = chain.args.getOrNull(0) as? String ?: "gps"
-                val defaultSys = when (provider.lowercase()) {
-                    "baidu" -> "BD-09"
-                    else -> "WGS-84"
-                }
-                val motion = getCurrentSpoofedMotion(defaultSys) ?: return@hookAllMethods result
-                try {
-                    val locClass = Class.forName("android.location.Location", false, classLoader)
-                    val fakeLoc = locClass.getConstructor(String::class.java)
-                        .newInstance(if (provider.isNotBlank()) provider else android.location.LocationManager.GPS_PROVIDER)
-                    XposedHelpers.callMethod(fakeLoc, "setLatitude", motion.lat)
-                    XposedHelpers.callMethod(fakeLoc, "setLongitude", motion.lng)
-                    XposedHelpers.callMethod(fakeLoc, "setAccuracy", getJitteredAccuracy())
-                    XposedHelpers.callMethod(fakeLoc, "setSpeed", motion.speed)
-                    XposedHelpers.callMethod(fakeLoc, "setBearing", motion.bearing)
-                    XposedHelpers.callMethod(fakeLoc, "setAltitude", RouteEngine.realisticAltitude(config))
-                    XposedHelpers.callMethod(fakeLoc, "setTime", System.currentTimeMillis())
-                    XposedHelpers.callMethod(
-                        fakeLoc, "setElapsedRealtimeNanos",
-                        android.os.SystemClock.elapsedRealtimeNanos()
-                    )
-                    try {
-                        val extras = android.os.Bundle().apply {
-                            val satCount = config.optInt("satellite_count", 20)
-                            putInt("satellites", satCount)
-                            putInt("satellites_in_view", satCount)
-                            putInt("satellites_used_in_fix", satCount.coerceAtLeast(12))
-                            putInt("satellites_visible", satCount)
-                            putBoolean("mockLocation", false)
-                        }
-                        XposedHelpers.callMethod(fakeLoc, "setExtras", extras)
-                    } catch (_: Throwable) {}
-                    try {
-                        XposedHelpers.callMethod(fakeLoc, "setIsFromMockProvider", false)
-                    } catch (_: Throwable) {
-                    }
-                    result = fakeLoc
-                } catch (e2: Throwable) {
-                    XposedBridge.log("[LocationSpoofer] getLastKnownLocation build error: $e2")
-                }
-                return@hookAllMethods result
+            val locationManagerClass = XposedHelpers.findClass("android.location.LocationManager", classLoader)
+            XposedHelpers.hookAllMethods(locationManagerClass, "getLastKnownLocation") { chain, _ ->
+                val provider = chain.args.firstOrNull() as? String ?: "gps"
+                createSimulatedLocation(provider) ?: chain.proceed(chain.args.toTypedArray())
             }
-        } catch (e: Throwable) {
-            XposedBridge.log("[LocationSpoofer] Failed to hook getLastKnownLocation: $e")
+        } catch (error: Throwable) {
+            XposedBridge.log("[LocationSpoofer] Failed to hook getLastKnownLocation: $error")
         }
 
         // Hook isLocationEnabled & isProviderEnabled (确保应用自检定位开启状态时恒为 true)

@@ -44,6 +44,12 @@ NOTICE —— 修改声明与来源说明
     使用独立 debug 签名，不代表 ZenQing-Tao 或原作者发布。
   * 更新仓库说明；保留手动签名发布流程，关闭继承的自动正式发布触发。
   * 发布仓库：https://github.com/Ayc-Gh/LocationSp_Next-improved
+  * 后续版本 3.1.5-google-location-fix（versionCode 31006）：发现 Google
+    定位客户端的实际实现，补齐 Listener/Callback 的持续投递、执行器与取消订阅。
+  * 修正 Location 可选字段标志和完整缓存位置构造，避免跨进程读取错位；
+    修正 libxposed GNSS/NMEA 参数替换，并记录 NMEA 监听器代理用于注销。
+  * 新增 Google 方法发现、回调身份与取消投递测试；128 项单元测试通过。
+    Android 16 上完成 Google 地图短时静止、路线及重开地图实测。
 
 ------------------------------------------------------------------
 分发时的义务提醒（给二次分发者）

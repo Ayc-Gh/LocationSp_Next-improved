@@ -85,7 +85,8 @@ internal fun LocationHooker.hookGnssStatus(classLoader: ClassLoader) {
                                 clazz,
                                 "onSatelliteStatusChanged"
                             ) { innerChain, innerMethod ->
-                                val statusObj = innerChain.args[0]
+                                val args = innerChain.args.toTypedArray()
+                                val statusObj = args[0]
                                 val config = readConfig()
                                 if (config != null && config.optBoolean("active", false)) {
                                     val count = config.optInt("satellite_count", 20)
@@ -97,10 +98,10 @@ internal fun LocationHooker.hookGnssStatus(classLoader: ClassLoader) {
                                         fallbackOriginalObj = statusObj
                                     )
                                     if (spoofedStatus != null) {
-                                        innerChain.args[0] = spoofedStatus
+                                        args[0] = spoofedStatus
                                     }
                                 }
-                                return@hookAllMethods innerChain.proceed(innerChain.args.toTypedArray())
+                                return@hookAllMethods innerChain.proceed(args)
                             }
                         } catch (_: Throwable) {
                         }

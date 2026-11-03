@@ -6,12 +6,16 @@ Maintained by [Ayc-Gh](https://github.com/Ayc-Gh), based on [ZenQing-Tao/Locatio
 
 - Preserve real network state, connection information, and wireless interfaces when simulated Wi-Fi data is missing or empty. Scan-only samples also preserve the real connection state.
 - Enter a custom route speed directly in metres per second. Any positive finite value is accepted without an artificial upper limit and is saved automatically.
+- Fix stale or grey Google Maps location dots by discovering concrete Google location clients, supporting both LocationListener and LocationCallback, delivering fresh fixes on the registered executor/looper, and stopping delivery after cancellation.
+- Fix cached-location deserialization by creating complete Location objects and preserving their optional-field flags. Also correct GNSS/NMEA argument replacement.
 
 [Download the APK and corresponding source](https://github.com/Ayc-Gh/LocationSp_Next-improved/releases/latest)
 
-Version `3.1.5-wifi-speed-fix` ships as **scoped / arm64-v8a**, signed with an independent debug certificate. Its signature differs from upstream, so it cannot be installed over the upstream APK. Export any data you want to keep before switching. Enable the module and target app scope in LSPosed, then restart the target app.
+Version `3.1.5-google-location-fix` (versionCode 31006) ships as **scoped / arm64-v8a**, with the same debug certificate as the previous improved release, so it can update `3.1.5-wifi-speed-fix` in place. Its signature differs from upstream, so it cannot update the upstream APK. Export any data you want to keep before switching from upstream. Enable the module and target app scope in LSPosed, then restart the target app.
 
-Validation: successful APK build and 27 relevant JUnit tests. On an Android 16 device, Amap loaded new search results and images while a route ran at 500.25 m/s with empty simulated Wi-Fi data. This release was validated for scoped mode; global system-service hooks were outside this verification.
+Validation: successful APK build and all 128 JUnit tests passed. On Android 16 / ColorOS 16.1 with Google Maps 26.43.00.1002020710, the dot stayed blue and stationary for about 128 seconds with jitter disabled, moved throughout a 127-second route test, and continued updating for about 49 seconds after restarting Maps during the route. An independent Google location probe received 21 route updates in about 20 seconds, with a maximum interval of 1008 ms; cached fixes, availability, executor delivery and cancellation checks passed. The earlier release verified Amap search and image loading with empty simulated Wi-Fi data.
+
+Only scoped / arm64-v8a was tested; extended navigation, locked-screen navigation and global mode remain unverified. Enabling position jitter intentionally introduces small movements. One native Google Play services crash was observed during the in-place update/hot reload; it restarted automatically and did not recur in the tests above. Its cause is unresolved. NMEA argument replacement was corrected, but no position sentence was captured for coordinate validation in this run.
 
 Original LocationSp_Next documentation follows.
 

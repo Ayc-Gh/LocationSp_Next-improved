@@ -46,6 +46,7 @@ class LocationHooker : XposedModule() {
     }
 
     internal val nmeaTimers = ConcurrentHashMap<Any, java.util.Timer>()
+    internal val nmeaListenerProxies = java.util.Collections.synchronizedMap(java.util.IdentityHashMap<Any, Any>())
     internal val bleScanTimers = ConcurrentHashMap<Any, java.util.Timer>()
     internal val hookedCallbackClasses = ConcurrentHashMap<Class<*>, Boolean>()
 
@@ -78,6 +79,9 @@ class LocationHooker : XposedModule() {
     internal val capturedBaiduListeners = CopyOnWriteArrayList<Any>()
     internal val capturedTencentListeners = CopyOnWriteArrayList<Any>()
     internal val capturedFusedLocationCallbacks = CopyOnWriteArrayList<Any>()
+    internal val googleSubscriptions = CallbackSubscriptions<GoogleDelivery>()
+    internal val hookedGoogleMembers = ConcurrentHashMap.newKeySet<java.lang.reflect.Method>()
+    internal val hookedGoogleDiscoveryClasses = ConcurrentHashMap.newKeySet<Class<*>>()
 
     @Volatile
     internal var currentPackageName: String = ""
@@ -202,6 +206,7 @@ class LocationHooker : XposedModule() {
         HookStatus.close()
         nmeaTimers.values.forEach { it.cancel() }
         nmeaTimers.clear()
+        nmeaListenerProxies.clear()
         bleScanTimers.values.forEach { it.cancel() }
         bleScanTimers.clear()
         clearSystemLocationReloadState()
@@ -212,6 +217,9 @@ class LocationHooker : XposedModule() {
         capturedBaiduListeners.clear()
         capturedTencentListeners.clear()
         capturedFusedLocationCallbacks.clear()
+        googleSubscriptions.clear()
+        hookedGoogleMembers.clear()
+        hookedGoogleDiscoveryClasses.clear()
         return true
     }
 
@@ -807,56 +815,8 @@ class LocationHooker : XposedModule() {
                                             }
                                         }
 
-                                        // 1.5 Google FusedLocationProviderClient 的 LocationCallback
-                                        if (fCount > 0 && cl != null) {
-                                            val callbacksToNotify = capturedFusedLocationCallbacks.toList()
-                                            for (callback in callbacksToNotify) {
-                                                try {
-                                                    val callbackCl = callback.javaClass.classLoader ?: cl
-                                                    val locationClass = Class.forName(
-                                                        "android.location.Location",
-                                                        false,
-                                                        callbackCl
-                                                    )
-                                                    val mockLoc =
-                                                        locationClass.getConstructor(String::class.java)
-                                                            .newInstance(android.location.LocationManager.GPS_PROVIDER)
-                                                    XposedHelpers.callMethod(mockLoc, "setLatitude", pushLat)
-                                                    XposedHelpers.callMethod(mockLoc, "setLongitude", pushLng)
-                                                    XposedHelpers.callMethod(mockLoc, "setAccuracy", pushAccuracy)
-                                                    XposedHelpers.callMethod(mockLoc, "setSpeed", pushSpeed)
-                                                    XposedHelpers.callMethod(mockLoc, "setBearing", pushBearing)
-                                                    XposedHelpers.callMethod(mockLoc, "setAltitude", pushAltitude)
-                                                    XposedHelpers.callMethod(mockLoc, "setTime", timeNow)
-                                                    XposedHelpers.callMethod(
-                                                        mockLoc,
-                                                        "setElapsedRealtimeNanos",
-                                                        elapsedNanos
-                                                    )
-                                                    try {
-                                                        XposedHelpers.callMethod(
-                                                            mockLoc,
-                                                            "setIsFromMockProvider",
-                                                            false
-                                                        )
-                                                    } catch (_: Throwable) {}
-
-                                                    val locationResultClass = Class.forName(
-                                                        "com.google.android.gms.location.LocationResult",
-                                                        false,
-                                                        callbackCl
-                                                    )
-                                                    val locationsList = java.util.Collections.singletonList(mockLoc)
-                                                    val result = XposedHelpers.callStaticMethod(
-                                                        locationResultClass,
-                                                        "create",
-                                                        locationsList
-                                                    )
-                                                    XposedHelpers.callMethod(callback, "onLocationResult", result)
-                                                } catch (_: Throwable) {
-                                                }
-                                            }
-                                        }
+                                        // Google callbacks must run on their requested executor/looper.
+                                        if (fCount > 0 && cl != null) dispatchGoogleLocationCallbacks(newConfig)
 
                                         // 2. AMapLocationListener
                                         if (aCount > 0 && cl != null) {

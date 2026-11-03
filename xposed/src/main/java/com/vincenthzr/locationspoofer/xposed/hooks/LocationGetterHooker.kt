@@ -30,7 +30,8 @@ import io.github.libxposed.api.*
  */
 internal fun LocationHooker.hookLocationGetters(classLoader: ClassLoader, currentPkg: String) {
     try {
-        // android.location.Location 标准接口: 默认输出 GCJ-02 坐标（与国内地图与考勤SDK保持一致，彻底消除500米偏移）
+        // Standard Location uses WGS-84 unless the target app explicitly overrides it.
+        // Presence flags must stay real: Location.CREATOR uses them to read optional Parcel fields.
         // 若应用需 WGS-84（如 Google Maps / OSM）可在「自定义坐标算法」中指定其目标坐标系。
         XposedHelpers.hookMethod(
             "android.location.Location",
@@ -106,18 +107,6 @@ internal fun LocationHooker.hookLocationGetters(classLoader: ClassLoader, curren
             return@hookMethod result
         }
 
-        XposedHelpers.hookMethod(
-            "android.location.Location",
-            classLoader,
-            "hasAccuracy"
-        ) { chain, method ->
-            var result = chain.proceed(chain.args.toTypedArray())
-            val config = readConfig()
-            if (config != null && config.optBoolean("active", false)) {
-                result = true
-            }
-            return@hookMethod result
-        }
 
         XposedHelpers.hookMethod(
             "android.location.Location",
@@ -135,18 +124,6 @@ internal fun LocationHooker.hookLocationGetters(classLoader: ClassLoader, curren
             return@hookMethod result
         }
 
-        XposedHelpers.hookMethod(
-            "android.location.Location",
-            classLoader,
-            "hasSpeed"
-        ) { chain, method ->
-            var result = chain.proceed(chain.args.toTypedArray())
-            val config = readConfig()
-            if (config != null && config.optBoolean("active", false)) {
-                result = true
-            }
-            return@hookMethod result
-        }
 
         XposedHelpers.hookMethod(
             "android.location.Location",
@@ -164,18 +141,6 @@ internal fun LocationHooker.hookLocationGetters(classLoader: ClassLoader, curren
             return@hookMethod result
         }
 
-        XposedHelpers.hookMethod(
-            "android.location.Location",
-            classLoader,
-            "hasBearing"
-        ) { chain, method ->
-            var result = chain.proceed(chain.args.toTypedArray())
-            val config = readConfig()
-            if (config != null && config.optBoolean("active", false)) {
-                result = true
-            }
-            return@hookMethod result
-        }
 
         XposedHelpers.hookMethod(
             "android.location.Location",
@@ -199,18 +164,6 @@ internal fun LocationHooker.hookLocationGetters(classLoader: ClassLoader, curren
             return@hookMethod result
         }
 
-        XposedHelpers.hookMethod(
-            "android.location.Location",
-            classLoader,
-            "hasAltitude"
-        ) { chain, method ->
-            var result = chain.proceed(chain.args.toTypedArray())
-            val config = readConfig()
-            if (config != null && config.optBoolean("active", false)) {
-                result = true
-            }
-            return@hookMethod result
-        }
 
         // Android 8.0+ 速度、航向、垂直精度扩展接口
         try {
@@ -218,25 +171,13 @@ internal fun LocationHooker.hookLocationGetters(classLoader: ClassLoader, curren
                 val config = readConfig()
                 if (config != null && config.optBoolean("active", false)) 0.1f else chain.proceed(chain.args.toTypedArray())
             }
-            XposedHelpers.hookMethod("android.location.Location", classLoader, "hasSpeedAccuracy") { chain, _ ->
-                val config = readConfig()
-                if (config != null && config.optBoolean("active", false)) true else chain.proceed(chain.args.toTypedArray())
-            }
             XposedHelpers.hookMethod("android.location.Location", classLoader, "getBearingAccuracyDegrees") { chain, _ ->
                 val config = readConfig()
                 if (config != null && config.optBoolean("active", false)) 1.5f else chain.proceed(chain.args.toTypedArray())
             }
-            XposedHelpers.hookMethod("android.location.Location", classLoader, "hasBearingAccuracy") { chain, _ ->
-                val config = readConfig()
-                if (config != null && config.optBoolean("active", false)) true else chain.proceed(chain.args.toTypedArray())
-            }
             XposedHelpers.hookMethod("android.location.Location", classLoader, "getVerticalAccuracyMeters") { chain, _ ->
                 val config = readConfig()
                 if (config != null && config.optBoolean("active", false)) 1.2f else chain.proceed(chain.args.toTypedArray())
-            }
-            XposedHelpers.hookMethod("android.location.Location", classLoader, "hasVerticalAccuracy") { chain, _ ->
-                val config = readConfig()
-                if (config != null && config.optBoolean("active", false)) true else chain.proceed(chain.args.toTypedArray())
             }
         } catch (_: Throwable) {}
 
