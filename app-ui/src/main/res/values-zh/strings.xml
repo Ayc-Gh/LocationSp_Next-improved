@@ -353,6 +353,9 @@
     <string name="joystick_manual_control_desc">开始后弹出悬浮摇杆，可在任意 App 上手动控制移动</string>
     <string name="cruise_speed">巡航速度</string>
     <string name="custom_speed">自定义速度</string>
+    <string name="custom_speed_input">速度（米/秒）</string>
+    <string name="custom_speed_no_limit">输入大于 0 的数值，不设上限</string>
+    <string name="custom_speed_invalid">请输入大于 0 的有效数值</string>
     <string name="pace_format">配速: %s</string>
     <string name="step_cadence_simulation">步频与计步模拟</string>
     <string name="step_cadence_simulation_desc">为运动软件注入实时计步与生理步频数据</string>

@@ -61,6 +61,7 @@ internal fun LocationHooker.hookWifiScanResults(classLoader: ClassLoader) {
             "android.net.wifi.WifiManager", classLoader, "getScanResults"
         ) { chain, method ->
             val config = readConfig() ?: return@hookMethod chain.proceed(chain.args.toTypedArray())
+            if (config.simulatedWifiEnvironment() == null) return@hookMethod chain.proceed(chain.args.toTypedArray())
             if (!config.optBoolean(
                     "active",
                     false

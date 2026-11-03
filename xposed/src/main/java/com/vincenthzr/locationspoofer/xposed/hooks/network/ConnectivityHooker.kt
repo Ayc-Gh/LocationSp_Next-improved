@@ -84,6 +84,7 @@ internal fun LocationHooker.hookConnectivityLayer(
         ) { chain, method ->
             val result = chain.proceed(chain.args.toTypedArray())
             val config = readConfig() ?: return@hookMethod result
+            if (config.simulatedWifiConnection() == null) return@hookMethod result
             if (!config.optBoolean("active", false)) return@hookMethod result
             if (config.optBoolean("mock_wifi", true)) {
                 val wifiObj = config.optJSONObject("wifi_json")
@@ -125,29 +126,6 @@ internal fun LocationHooker.hookConnectivityLayer(
                         val fakeInfo = buildFakeNetworkInfo()
                         if (fakeInfo != null) {
                             return@hookMethod fakeInfo
-                        }
-                    }
-                } else {
-                    // 如果用户要求模拟 Wi-Fi，但实际上数据库里没有 Wi-Fi 数据
-                    // 我们需要向系统返回 Wi-Fi 断开的状态
-                    val currentInfo = result
-                    if (currentInfo != null) {
-                        try {
-                            val type = XposedHelpers.callMethod(currentInfo, "getType") as Int
-                            if (type == 1) { // WIFI 类型 (TYPE_WIFI)
-                                val stateEnum = XposedHelpers.findClass(
-                                    "android.net.NetworkInfo\$State",
-                                    classLoader
-                                )
-                                XposedHelpers.setObjectField(
-                                    currentInfo,
-                                    "mState",
-                                    stateEnum.getField("DISCONNECTED").get(null)
-                                )
-                                XposedHelpers.callMethod(currentInfo, "setIsAvailable", false)
-                                return@hookMethod currentInfo
-                            }
-                        } catch (e: Throwable) {
                         }
                     }
                 }
@@ -166,6 +144,7 @@ internal fun LocationHooker.hookConnectivityLayer(
         ) { chain, method ->
             val result = chain.proceed(chain.args.toTypedArray())
             val config = readConfig() ?: return@hookMethod result
+            if (config.simulatedWifiConnection() == null) return@hookMethod result
             if (!config.optBoolean("active", false)) return@hookMethod result
             if (config.optBoolean("mock_wifi", true)) {
                 val wifiObj = config.optJSONObject("wifi_json")
@@ -209,29 +188,6 @@ internal fun LocationHooker.hookConnectivityLayer(
                             return@hookMethod fakeInfo
                         }
                     }
-                } else {
-                    // 如果用户要求模拟 Wi-Fi，但实际上数据库里没有 Wi-Fi 数据
-                    // 我们需要向系统返回 Wi-Fi 断开的状态
-                    val currentInfo = result
-                    if (currentInfo != null) {
-                        try {
-                            val type = XposedHelpers.callMethod(currentInfo, "getType") as Int
-                            if (type == 1) { // WIFI 类型 (TYPE_WIFI)
-                                val stateEnum = XposedHelpers.findClass(
-                                    "android.net.NetworkInfo\$State",
-                                    classLoader
-                                )
-                                XposedHelpers.setObjectField(
-                                    currentInfo,
-                                    "mState",
-                                    stateEnum.getField("DISCONNECTED").get(null)
-                                )
-                                XposedHelpers.callMethod(currentInfo, "setIsAvailable", false)
-                                return@hookMethod currentInfo
-                            }
-                        } catch (e: Throwable) {
-                        }
-                    }
                 }
             }
             return@hookMethod result
@@ -248,6 +204,7 @@ internal fun LocationHooker.hookConnectivityLayer(
         ) { chain, method ->
             val result = chain.proceed(chain.args.toTypedArray())
             val config = readConfig() ?: return@hookMethod result
+            if (config.simulatedWifiConnection() == null) return@hookMethod result
             if (!config.optBoolean("active", false)) return@hookMethod result
             if (!config.optBoolean("mock_wifi", true)) return@hookMethod result
 
@@ -517,13 +474,6 @@ internal fun LocationHooker.hookConnectivityLayer(
                         } catch (e2: Throwable) {
                         }
                     }
-                } else {
-                    // 库中无 Wi-Fi 数据，移除 TransportInfo 以伪造非 Wi-Fi 环境
-                    try {
-                        XposedHelpers.setObjectField(nc, "mTransportInfo", null)
-                    } catch (e: Throwable) {
-                    }
-                    XposedBridge.log("[LocationSpoofer] fakeWifiInfo: No wifi data, removed TransportInfo")
                 }
             } catch (e: Throwable) {
                 XposedBridge.log("[LocationSpoofer] fakeWifiInfo error: " + e.message)
@@ -540,6 +490,7 @@ internal fun LocationHooker.hookConnectivityLayer(
         ) { chain, method ->
             val result = chain.proceed(chain.args.toTypedArray())
             val config = readConfig() ?: return@hookMethod result
+            if (config.simulatedWifiConnection() == null) return@hookMethod result
             if (!config.optBoolean("active", false)) return@hookMethod result
             val enumResult = result as? java.util.Enumeration<*> ?: return@hookMethod result
             val filtered = java.util.Collections.list(enumResult).filter { iface ->

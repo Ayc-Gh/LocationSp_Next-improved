@@ -354,6 +354,9 @@
     <string name="joystick_manual_control_desc">A floating joystick appears so you can steer from any app</string>
     <string name="cruise_speed">Cruise Speed</string>
     <string name="custom_speed">Custom Speed</string>
+    <string name="custom_speed_input">Speed (m/s)</string>
+    <string name="custom_speed_no_limit">Enter a positive number; no upper limit</string>
+    <string name="custom_speed_invalid">Enter a valid number greater than zero</string>
     <string name="pace_format">Pace: %s</string>
     <string name="step_cadence_simulation">Cadence &amp; Step Simulation</string>
     <string name="step_cadence_simulation_desc">Inject real-time steps and physiological cadence into fitness apps</string>

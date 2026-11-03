@@ -75,6 +75,21 @@ class MotionControllerTest {
     }
 
     @Test
+    fun `custom speed above the old limits reaches the route and motion sink unchanged`() {
+        val custom = MotionController.SpeedPreset("CUSTOM", 250.123456789)
+        controller.onRouteStarted(
+            listOf(RoutePoint(start.lat, start.lng), RoutePoint(end.lat, end.lng)),
+            custom, stopAtDestination = false, startTimestamp = now
+        )
+        advance(1_000)
+        assertEquals(custom.speedMs, controller.state.value.speedMs, 1e-9)
+        assertEquals(custom.speedMs, GeoMath.distance(start, here()), 0.1)
+        controller.setSpeedPreset(custom.copy(speedMs = 500.25))
+        awaitUntil { sink.routes.isNotEmpty() }
+        assertEquals(500.25, sink.routes.last().preset.speedMs, 0.0)
+    }
+
+    @Test
     fun `joystick is ignored while the route is playing`() {
         startRoute()
         controller.joystick(90.0, 1f)

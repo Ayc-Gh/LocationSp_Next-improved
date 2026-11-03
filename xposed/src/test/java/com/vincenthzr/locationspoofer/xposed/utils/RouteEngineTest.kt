@@ -64,6 +64,21 @@ class RouteEngineTest {
     }
 
     @Test
+    fun `custom speed above the old limits reaches location output`() {
+        val config = JSONObject().apply {
+            put("is_route_mode", true)
+            put("route_points", pointsJson(30.0 to 120.0, 30.1 to 120.0))
+            put("speed_m_s", 500.25)
+            put("start_timestamp", 1_000L)
+            put("realism_level", 0)
+            put("speed_fluctuation_pct", 0)
+        }
+        val motion = RouteEngine.calculateCurrentPosition(config, now = 2_000L)
+        assertEquals(500.25f, motion.speed)
+        assertEquals(30.0 + 500.25 / 111_320.0, motion.lat, 2e-5)
+    }
+
+    @Test
     fun `straight two-point route with stop_at_destination stops exactly at the last point`() {
         val start = 10.0 to 100.0
         val end = 10.02 to 100.0

@@ -1,11 +1,8 @@
-name: Release on Version Update
+name: Manual Signed Release
 
 on:
-  push:
-    branches:
-      - main
-      - master
-  workflow_dispatch: # 允许在 GitHub Actions 网页端手动一键触发
+  # 改进版当前发布已验证的本地 APK。配置自己的正式签名密钥后可手动运行。
+  workflow_dispatch:
 
 permissions:
   contents: write # 允许 GITHUB_TOKEN 创建 Release 和 Tag

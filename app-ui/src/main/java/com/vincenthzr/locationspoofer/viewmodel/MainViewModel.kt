@@ -94,6 +94,7 @@ class MainViewModel(
             isSystemHookGlobalMode = settingsRepository.isSystemHookGlobalMode,
             forceLocationEnabled = settingsRepository.forceLocationEnabled,
             mockWifi = settingsRepository.mockWifi,
+            customSpeedMs = settingsRepository.customSpeedMs,
             mockCell = settingsRepository.mockCell,
             mockBluetooth = settingsRepository.mockBluetooth,
             enableJitter = settingsRepository.enableJitter,

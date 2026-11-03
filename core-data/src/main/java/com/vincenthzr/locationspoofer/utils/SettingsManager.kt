@@ -119,6 +119,15 @@ class SettingsManager(context: Context) {
         get() = prefs.getBoolean("mock_wifi", true)
         set(value) = prefs.edit().putBoolean("mock_wifi", value).apply()
 
+    var customSpeedMs: Double
+        get() = prefs.getString("custom_speed_ms", null)?.toDoubleOrNull()
+            ?.takeIf { it.isFinite() && it > 0.0 } ?: 3.0
+        set(value) {
+            if (value.isFinite() && value > 0.0) {
+                prefs.edit().putString("custom_speed_ms", value.toString()).apply()
+            }
+        }
+
     var mockCell: Boolean
         get() = prefs.getBoolean("mock_cell", true)
         set(value) = prefs.edit().putBoolean("mock_cell", value).apply()

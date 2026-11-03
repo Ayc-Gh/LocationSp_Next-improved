@@ -6,6 +6,10 @@ import com.vincenthzr.locationspoofer.utils.SettingsManager
 
 class SettingsRepository(private val settingsManager: SettingsManager) {
 
+    var customSpeedMs: Double
+        get() = settingsManager.customSpeedMs
+        set(value) { settingsManager.customSpeedMs = value }
+
     fun getSavedLocations(): List<SavedLocation> = settingsManager.getSavedLocations()
 
     fun setSavedLocations(locations: List<SavedLocation>) = settingsManager.saveLocationList(locations)

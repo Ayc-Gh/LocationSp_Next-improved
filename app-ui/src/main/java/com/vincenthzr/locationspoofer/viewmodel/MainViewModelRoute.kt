@@ -99,7 +99,9 @@ internal fun MainViewModel.setRouteSimMode(mode: SimMode) {
 /** 设置自定义速度 (m/s) */
 
 internal fun MainViewModel.setCustomSpeedMs(speed: Double) {
-    _uiState.update { it.copy(customSpeedMs = speed.coerceIn(0.1, 100.0)) }
+    if (!speed.isFinite() || speed <= 0.0) return
+    settingsRepository.customSpeedMs = speed
+    _uiState.update { it.copy(customSpeedMs = speed) }
 }
 
 /** 获取实际生效的速度 (m/s) */
@@ -111,8 +113,8 @@ private fun MainViewModel.getEffectiveSpeedMs(): Double {
 }
 
 /** 摇杆推满时的速度；自定义速度未填或为 0 时回退到步行速度，避免摇杆推不动 */
-internal fun MainViewModel.joystickMaxSpeedMs(): Float =
-    getEffectiveSpeedMs().takeIf { it > 0.0 }?.toFloat() ?: SimMode.WALKING.speedMs.toFloat()
+internal fun MainViewModel.joystickMaxSpeedMs(): Double =
+    getEffectiveSpeedMs().takeIf { it.isFinite() && it > 0.0 } ?: SimMode.WALKING.speedMs
 
 /** 首页地图确认选点 */
 
@@ -357,7 +359,7 @@ private fun MainViewModel.startSimulationWithPoints(pointsToRun: List<RoutePoint
             stepCadenceSpm = _uiState.value.stepCadenceSpm,
             isAutoCadence = _uiState.value.isAutoCadence
         )
-        val preset = MotionController.SpeedPreset(_uiState.value.routeSimMode.name, joystickMaxSpeedMs().toDouble())
+        val preset = MotionController.SpeedPreset(_uiState.value.routeSimMode.name, joystickMaxSpeedMs())
         // 手动模式同样加载路线，只是以暂停状态开始、由悬浮摇杆控制，点"开始"后沿路线前进
         motionController.onRouteStarted(pointsToRun, preset, _uiState.value.stopAtDestination, now, startPaused = !isLoop)
         // 悬浮摇杆只在手动模式下出现；停止模拟后它会随 MotionController 结束会话自行关闭

@@ -1,4 +1,21 @@
-# LocationSp_Next
+# LocationSp_Next Improved
+
+Maintained by [Ayc-Gh](https://github.com/Ayc-Gh), based on [ZenQing-Tao/LocationSp_Next v3.1.5](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.1.5), commit `f582ecb82490a71bba21b7a5754a38c03b81498f`. This is an independent modification, not an official upstream release. Original attribution, `LICENSE`, `NOTICE`, and upstream documentation are retained.
+
+## Improvements (2026-11-03)
+
+- Preserve real network state, connection information, and wireless interfaces when simulated Wi-Fi data is missing or empty. Scan-only samples also preserve the real connection state.
+- Enter a custom route speed directly in metres per second. Any positive finite value is accepted without an artificial upper limit and is saved automatically.
+
+[Download the APK and corresponding source](https://github.com/Ayc-Gh/LocationSp_Next-improved/releases/latest)
+
+Version `3.1.5-wifi-speed-fix` ships as **scoped / arm64-v8a**, signed with an independent debug certificate. Its signature differs from upstream, so it cannot be installed over the upstream APK. Export any data you want to keep before switching. Enable the module and target app scope in LSPosed, then restart the target app.
+
+Validation: successful APK build and 27 relevant JUnit tests. On an Android 16 device, Amap loaded new search results and images while a route ran at 500.25 m/s with empty simulated Wi-Fi data. This release was validated for scoped mode; global system-service hooks were outside this verification.
+
+Original LocationSp_Next documentation follows.
+
+---
 
 [简体中文](./README.md) | **English**
 

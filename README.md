@@ -1,4 +1,21 @@
-# LocationSp_Next
+# LocationSp_Next 改进
+
+本仓库由 [Ayc-Gh](https://github.com/Ayc-Gh) 基于 [ZenQing-Tao/LocationSp_Next v3.1.5](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.1.5) 修改，基准提交为 `f582ecb82490a71bba21b7a5754a38c03b81498f`。这是独立改进版，非上游官方发布。原作者署名、`LICENSE`、`NOTICE` 和原有说明均保留。
+
+## 本次改进（2026-11-03）
+
+- **修复 Wi-Fi 数据为空时目标应用误判断网**：没有有效的模拟 Wi-Fi 数据时，保留系统真实的联网状态、连接信息和无线网卡；仅有扫描数据时也保留真实连接状态。
+- **路线速度可直接输入**：在“路线 → 开始模拟 → 自定义”输入大于 0 的有限数值，单位为米/秒。不设人为上限，自动保存。
+
+[下载改进版 APK 与对应源码](https://github.com/Ayc-Gh/LocationSp_Next-improved/releases/latest)
+
+当前发布版本为 `3.1.5-wifi-speed-fix`，安装包为 **scoped / arm64-v8a**，使用独立的 debug 签名。它与上游安装包签名不同，不能直接覆盖安装；从上游切换前，如需保留数据，请先自行导出。安装后在 LSPosed 中启用模块、勾选目标应用，并重启目标应用。
+
+验证情况：APK 构建成功，27 项相关 JUnit 测试通过；Android 16 实机中，路线以 500.25 m/s 运行且 Wi-Fi 模拟数据为空时，高德搜索及图片加载正常。本次修复与验证针对 scoped 方案；全局方案的系统服务钩子不在本次发布验证范围内。
+
+以下保留 LocationSp_Next 的原有项目说明。
+
+---
 
 **简体中文** | [English](./README_EN.md)
 

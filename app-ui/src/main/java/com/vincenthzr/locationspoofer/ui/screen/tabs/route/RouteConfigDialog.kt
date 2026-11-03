@@ -29,6 +29,7 @@ import com.vincenthzr.locationspoofer.data.model.RouteRunMode
 import com.vincenthzr.locationspoofer.data.model.SimMode
 import com.vincenthzr.locationspoofer.ui.screen.AltitudeSettingsCard
 import com.vincenthzr.locationspoofer.ui.theme.AccentBlue
+import java.math.BigDecimal
 import java.util.Locale
 
 @Composable
@@ -52,6 +53,14 @@ fun RouteConfigDialog(
     onAltitudeVariationChange: (Int) -> Unit = {},
     onSatelliteCountChange: (String) -> Unit = {}
 ) {
+    var customSpeedText by remember { mutableStateOf(uiState.customSpeedMs.toString()) }
+    val enteredSpeed = customSpeedText.trim().toDoubleOrNull()
+    val speedInputValid = enteredSpeed != null && enteredSpeed.isFinite() && enteredSpeed > 0.0
+    LaunchedEffect(uiState.customSpeedMs) {
+        if (customSpeedText.trim().toDoubleOrNull() != uiState.customSpeedMs) {
+            customSpeedText = uiState.customSpeedMs.toString()
+        }
+    }
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -196,12 +205,8 @@ fun RouteConfigDialog(
 
                         // 自定义速度调节模块
                         if (uiState.routeSimMode == SimMode.CUSTOM) {
-                            var sliderValue by remember(uiState.customSpeedMs) {
-                                mutableFloatStateOf(
-                                    uiState.customSpeedMs.toFloat()
-                                )
-                            }
-                            val paceSec = if (sliderValue > 0.2f) (1000.0 / sliderValue).toInt() else 0
+                            val speedValue = uiState.customSpeedMs
+                            val paceSec = if (speedValue > 0.0) (1000.0 / speedValue).toInt() else 0
                             val paceMin = paceSec / 60
                             val paceRem = paceSec % 60
                             val paceStr = if (paceSec in 60..3599) "${paceMin}'${
@@ -246,13 +251,13 @@ fun RouteConfigDialog(
                                                 String.format(
                                                     Locale.US,
                                                     "%.1f",
-                                                    sliderValue
+                                                    speedValue
                                                 )
                                             } m/s (${
                                                 String.format(
                                                     Locale.US,
                                                     "%.1f",
-                                                    sliderValue * 3.6
+                                                    speedValue * 3.6
                                                 )
                                             } km/h)",
                                             fontSize = 13.sp,
@@ -261,19 +266,23 @@ fun RouteConfigDialog(
                                         )
                                     }
 
-                                    Slider(
-                                        value = sliderValue,
+                                    OutlinedTextField(
+                                        value = customSpeedText,
                                         onValueChange = {
-                                            sliderValue = it
-                                            onCustomSpeedChange(it.toDouble())
+                                            customSpeedText = it
+                                            val speed = it.trim().toDoubleOrNull()
+                                            if (speed != null && speed.isFinite() && speed > 0.0) {
+                                                onCustomSpeedChange(speed)
+                                            }
                                         },
-                                        valueRange = 0.2f..45.0f,
-                                        steps = 447,
-                                        colors = SliderDefaults.colors(
-                                            thumbColor = AccentBlue,
-                                            activeTrackColor = AccentBlue,
-                                            inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                                        )
+                                        label = { Text(stringResource(R.string.custom_speed_input)) },
+                                        supportingText = {
+                                            Text(stringResource(if (speedInputValid) R.string.custom_speed_no_limit else R.string.custom_speed_invalid))
+                                        },
+                                        isError = !speedInputValid,
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                        modifier = Modifier.fillMaxWidth()
                                     )
 
                                     // 微调步进按钮
@@ -281,7 +290,7 @@ fun RouteConfigDialog(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                                     ) {
-                                        listOf(-1.0f, -0.2f, 0.2f, 1.0f).forEach { step ->
+                                        listOf(-1.0, -0.2, 0.2, 1.0).forEach { step ->
                                             Surface(
                                                 shape = RoundedCornerShape(8.dp),
                                                 color = MaterialTheme.colorScheme.surfaceVariant.copy(
@@ -290,10 +299,12 @@ fun RouteConfigDialog(
                                                 modifier = Modifier
                                                     .weight(1f)
                                                     .clickable {
-                                                        val newVal =
-                                                            (sliderValue + step).coerceIn(0.2f, 45.0f)
-                                                        sliderValue = newVal
-                                                        onCustomSpeedChange(newVal.toDouble())
+                                                        val newVal = BigDecimal.valueOf(speedValue)
+                                                            .add(BigDecimal.valueOf(step)).toDouble()
+                                                        if (newVal.isFinite() && newVal > 0.0) {
+                                                            customSpeedText = newVal.toString()
+                                                            onCustomSpeedChange(newVal)
+                                                        }
                                                     }
                                             ) {
                                                 Text(
@@ -596,6 +607,7 @@ fun RouteConfigDialog(
 
                 Button(
                     onClick = onStartRoute,
+                    enabled = uiState.routeSimMode != SimMode.CUSTOM || speedInputValid,
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = AccentBlue),
                     modifier = Modifier
