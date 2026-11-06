@@ -1,6 +1,13 @@
 # LocationSp_Next Improved
 
-Maintained by [Ayc-Gh](https://github.com/Ayc-Gh), based on [ZenQing-Tao/LocationSp_Next v3.1.5](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.1.5), commit `f582ecb82490a71bba21b7a5754a38c03b81498f`. This is an independent modification, not an official upstream release. Original attribution, `LICENSE`, `NOTICE`, and upstream documentation are retained.
+Maintained by [Ayc-Gh](https://github.com/Ayc-Gh), synchronized with [ZenQing-Tao/LocationSp_Next v3.2.0](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.2.0), upstream commit `9bd39671138d7241621cd43941ca4834aa96b587`. This is an independent modification, not an official upstream release. Original attribution, `LICENSE`, `NOTICE`, and upstream documentation are retained.
+
+## Upstream sync (2026-11-06)
+
+- Integrate the changes from 29 upstream commits: per-kilometre pace profiles, fatigue, first-kilometre bias, real GPS recording, the recording map and heading arrow.
+- Pass custom route speeds together with the new pace parameters, retaining the Wi-Fi fallback, uncapped speed input and continuous Google location fixes below.
+- Fix duplicated upstream trajectory tests and the invalid single-point test expectation; add coverage for pace-profile and hooked-location integration.
+- See the [sync record](docs/UPSTREAM_SYNC.md) for build/test results and scope. This update has not been installed on the phone or rechecked with the earlier device tests.
 
 ## Improvements (2026-11-03)
 
@@ -11,9 +18,9 @@ Maintained by [Ayc-Gh](https://github.com/Ayc-Gh), based on [ZenQing-Tao/Locatio
 
 [Download the APK and corresponding source](https://github.com/Ayc-Gh/LocationSp_Next-improved/releases/latest)
 
-Version `3.1.5-google-location-fix` (versionCode 31006) ships as **scoped / arm64-v8a**, with the same debug certificate as the previous improved release, so it can update `3.1.5-wifi-speed-fix` in place. Its signature differs from upstream, so it cannot update the upstream APK. Export any data you want to keep before switching from upstream. Enable the module and target app scope in LSPosed, then restart the target app.
+Version `3.2.0-improved` (versionCode 32001) ships as **scoped / arm64-v8a**, retaining this repository's previous debug certificate, so it can update both `3.1.5-google-location-fix` and `3.1.5-wifi-speed-fix` in place. It does not adopt the upstream signing-key change. Existing data uses upstream database migrations 9→10→11. Its signature differs from upstream, so it cannot update an upstream APK. Enable the module and target app scope in LSPosed, then restart the target app.
 
-Validation: successful APK build and all 128 JUnit tests passed. On Android 16 / ColorOS 16.1 with Google Maps 26.43.00.1002020710, the dot stayed blue and stationary for about 128 seconds with jitter disabled, moved throughout a 127-second route test, and continued updating for about 49 seconds after restarting Maps during the route. An independent Google location probe received 21 route updates in about 20 seconds, with a maximum interval of 1008 ms; cached fixes, availability, executor delivery and cancellation checks passed. The earlier release verified Amap search and image loading with empty simulated Wi-Fi data.
+Historical validation (2026-11-03, `3.1.5-google-location-fix`): successful APK build and all 128 JUnit tests passed. On Android 16 / ColorOS 16.1 with Google Maps 26.43.00.1002020710, the dot stayed blue and stationary for about 128 seconds with jitter disabled, moved throughout a 127-second route test, and continued updating for about 49 seconds after restarting Maps during the route. An independent Google location probe received 21 route updates in about 20 seconds, with a maximum interval of 1008 ms; cached fixes, availability, executor delivery and cancellation checks passed. An earlier release verified Amap search and image loading with empty simulated Wi-Fi data. These results are not a new device validation of version 3.2.0.
 
 Only scoped / arm64-v8a was tested; extended navigation, locked-screen navigation and global mode remain unverified. Enabling position jitter intentionally introduces small movements. One native Google Play services crash was observed during the in-place update/hot reload; it restarted automatically and did not recur in the tests above. Its cause is unresolved. NMEA argument replacement was corrected, but no position sentence was captured for coordinate validation in this run.
 
@@ -176,3 +183,23 @@ Thanks to the following friends for supporting this project. Donations are entir
 - Distributed under [GNU GPLv3](./LICENSE); see [`NOTICE`](./NOTICE) for the modification record.
 
 **When distributing binaries, provide the corresponding complete source code and retain `LICENSE`, `NOTICE`, and the attribution and disclaimer above.**
+
+---
+
+## ☕ Buy me a coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Your support helps keep it maintained.
+
+<p align="center">
+  <img src="./docs/donate/usdt-trc20.jpg" alt="USDT (TRC20) donation QR code" width="320" />
+</p>
+
+**USDT (TRC-20)**
+
+```
+THLn3ZeUEGqMZWxfjxxFqgpMkrSHFhn9uc
+```
+
+> This address accepts **USDT on TRC-20 only**. Do not send any other token or use another network (e.g. ERC-20 / BEP-20) — transfers sent the wrong way cannot be recovered.
+>
+> Donations are entirely optional and unlock nothing. This project remains fully free and open source; a donation does not constitute any commercial partnership, custom support, or service commitment.

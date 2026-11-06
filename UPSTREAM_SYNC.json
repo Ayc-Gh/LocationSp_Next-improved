@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/ZenQing-Tao/LocationSp_Next",
+  "branch": "main",
+  "tag": "v3.2.0",
+  "commit": "9bd39671138d7241621cd43941ca4834aa96b587",
+  "previousCommit": "f582ecb82490a71bba21b7a5754a38c03b81498f",
+  "syncedAt": "2026-11-06",
+  "downstreamVersion": "3.2.0-improved"
+}

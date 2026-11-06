@@ -1,6 +1,13 @@
 # LocationSp_Next 改进
 
-本仓库由 [Ayc-Gh](https://github.com/Ayc-Gh) 基于 [ZenQing-Tao/LocationSp_Next v3.1.5](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.1.5) 修改，基准提交为 `f582ecb82490a71bba21b7a5754a38c03b81498f`。这是独立改进版，非上游官方发布。原作者署名、`LICENSE`、`NOTICE` 和原有说明均保留。
+本仓库由 [Ayc-Gh](https://github.com/Ayc-Gh) 维护，已同步 [ZenQing-Tao/LocationSp_Next v3.2.0](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.2.0)，上游提交为 `9bd39671138d7241621cd43941ca4834aa96b587`。这是独立改进版，非上游官方发布。原作者署名、`LICENSE`、`NOTICE` 和原有说明均保留。
+
+## 上游同步（2026-11-06）
+
+- 合入 v3.2.0 的 29 个上游提交：逐公里配速曲线、体力衰减、首公里偏快修正，以及真实 GPS 轨迹录制、录制地图和朝向箭头。
+- 路线启动同时传递自定义速度与新增配速参数；保留下述 Wi-Fi 回退、无人工上限速度输入和 Google 连续定位修复。
+- 修正上游轨迹测试中的重复声明和单点输入预期，并补充新配速模型与定位输出的衔接测试。
+- 构建与测试结果、当前验证范围见 [同步记录](docs/UPSTREAM_SYNC.md)。本轮未安装到手机，也未重做上轮实机测试。
 
 ## 本次改进（2026-11-03）
 
@@ -11,9 +18,9 @@
 
 [下载改进版 APK 与对应源码](https://github.com/Ayc-Gh/LocationSp_Next-improved/releases/latest)
 
-当前发布版本为 `3.1.5-google-location-fix`（versionCode 31006），安装包为 **scoped / arm64-v8a**，沿用上一改进版的 debug 签名，可直接覆盖 `3.1.5-wifi-speed-fix`。它与上游安装包签名不同，不能直接覆盖上游版；从上游切换前，如需保留数据，请先自行导出。安装后在 LSPosed 中启用模块、勾选目标应用，并重启目标应用。
+当前版本为 `3.2.0-improved`（versionCode 32001），安装包为 **scoped / arm64-v8a**，沿用本仓库此前的 debug 签名，可覆盖 `3.1.5-google-location-fix` 和 `3.1.5-wifi-speed-fix`。本改进版没有跟随上游更换签名；原有数据使用上游的数据库 9→10→11 迁移。它与上游安装包签名不同，不能直接覆盖上游版。安装后在 LSPosed 中启用模块、勾选目标应用，并重启目标应用。
 
-验证情况：APK 构建成功，128 项 JUnit 测试全部通过。Android 16 / ColorOS 16.1、Google 地图 26.43.00.1002020710 实测：关闭位置抖动后，静止约 128 秒蓝点保持不动，路线约 127 秒持续移动，路线运行中重开地图后继续更新约 49 秒。独立 Google 定位探针在约 20 秒内收到 21 次路线回调，最大间隔 1008 毫秒；缓存位置、定位可用性、执行器及取消订阅检查通过。上一版已验证高德在 Wi-Fi 模拟数据为空时正常搜索和加载图片。
+历史验证（2026-11-03，`3.1.5-google-location-fix`）：APK 构建成功，128 项 JUnit 测试全部通过。Android 16 / ColorOS 16.1、Google 地图 26.43.00.1002020710 实测：关闭位置抖动后，静止约 128 秒蓝点保持不动，路线约 127 秒持续移动，路线运行中重开地图后继续更新约 49 秒。独立 Google 定位探针在约 20 秒内收到 21 次路线回调，最大间隔 1008 毫秒；缓存位置、定位可用性、执行器及取消订阅检查通过。更早版本已验证高德在 Wi-Fi 模拟数据为空时正常搜索和加载图片。此段记录不代表新版已重做实机验证。
 
 验证范围为 scoped / arm64-v8a；尚未覆盖长时间导航、锁屏导航及全局方案。开启“位置抖动”会主动产生小范围位移。覆盖安装热重载阶段观察到一次 Google Play 服务原生崩溃，自动重启后上述测试未再出现；原因尚未确定，不能据此保证所有设备表现一致。NMEA 参数替换已修正，但本轮未取得可供核对的定位语句，未宣称其坐标实测通过。
 
@@ -257,3 +264,23 @@ CI：`.github/workflows/build-debug-apk.yml`（手动触发，产出可直接安
 请通过本仓库的 [Issues](../../issues) 提交问题；安全相关问题请按 [`SECURITY.md`](./SECURITY.md) 私下报告。
 
 > 本仓库与上游作者及任何第三方社群无隶属关系，不代其提供支持。
+
+---
+
+## ☕ Buy me a coffee
+
+如果这个项目对你有帮助，欢迎请我喝杯咖啡。你的支持会让它维护得更久。
+
+<p align="center">
+  <img src="./docs/donate/usdt-trc20.jpg" alt="USDT (TRC20) 收款码" width="320" />
+</p>
+
+**USDT (TRC-20)**
+
+```
+THLn3ZeUEGqMZWxfjxxFqgpMkrSHFhn9uc
+```
+
+> 该地址只接收 **USDT (TRC-20)** 资产，请勿转入其它币种或其它网络（如 ERC-20 / BEP-20），转错将无法找回。
+>
+> 捐赠完全自愿，不影响任何功能。本项目仍然完全免费开源；捐赠不构成任何形式的商业合作、定制支持或服务承诺。
