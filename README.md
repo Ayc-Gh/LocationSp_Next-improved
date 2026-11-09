@@ -1,6 +1,6 @@
 # LocationSp_Next 改进
 
-本仓库由 [Ayc-Gh](https://github.com/Ayc-Gh) 维护，已同步 [ZenQing-Tao/LocationSp_Next v3.2.0](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.2.0)，上游提交为 `9bd39671138d7241621cd43941ca4834aa96b587`。这是独立改进版，非上游官方发布。原作者署名、`LICENSE`、`NOTICE` 和原有说明均保留。
+本仓库由 [Ayc-Gh](https://github.com/Ayc-Gh) 维护，已同步 [ZenQing-Tao/LocationSp_Next v3.2.0](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.2.0)，上游提交为 `9bd39671138d7241621cd43941ca4834aa96b587`。这是独立改进版，非上游官方发布。原作者署名、`LICENSE`、`NOTICE` 和许可说明均保留。
 
 ## 上游同步（2026-11-06）
 
@@ -233,16 +233,6 @@ CI：`.github/workflows/build-debug-apk.yml`（手动触发，产出可直接安
 
 ## 致谢与许可
 
-### 捐赠支持
-
-感谢以下朋友对本项目的捐赠支持。捐赠完全自愿，**不涉及任何购买服务**；无论捐赠与否都可以使用本项目一切功能。
-
-| 捐赠者 | 时间 |
-| --- | --- |
-| <img src="https://github.com/kgyyds.png?size=64" width="24" height="24" alt="kgyyds" /> [@kgyyds](https://github.com/kgyyds) | 2026-10 |
-
-> 若在捐赠备注中留下 GitHub 账号，将在此显示头像与昵称；未留账号者只记录姓名。
-
 ### 代码与文档贡献
 
 - 感谢上游项目的作者（上游 `LICENSE` 署名为 **SuseOAA**）、仓库维护者 [@HuangZhuoRui](https://github.com/HuangZhuoRui) 及所有上游贡献者的工作。
@@ -264,23 +254,3 @@ CI：`.github/workflows/build-debug-apk.yml`（手动触发，产出可直接安
 请通过本仓库的 [Issues](../../issues) 提交问题；安全相关问题请按 [`SECURITY.md`](./SECURITY.md) 私下报告。
 
 > 本仓库与上游作者及任何第三方社群无隶属关系，不代其提供支持。
-
----
-
-## ☕ Buy me a coffee
-
-如果这个项目对你有帮助，欢迎请我喝杯咖啡。你的支持会让它维护得更久。
-
-<p align="center">
-  <img src="./docs/donate/usdt-trc20.jpg" alt="USDT (TRC20) 收款码" width="320" />
-</p>
-
-**USDT (TRC-20)**
-
-```
-THLn3ZeUEGqMZWxfjxxFqgpMkrSHFhn9uc
-```
-
-> 该地址只接收 **USDT (TRC-20)** 资产，请勿转入其它币种或其它网络（如 ERC-20 / BEP-20），转错将无法找回。
->
-> 捐赠完全自愿，不影响任何功能。本项目仍然完全免费开源；捐赠不构成任何形式的商业合作、定制支持或服务承诺。

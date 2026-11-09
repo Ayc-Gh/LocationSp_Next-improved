@@ -1,6 +1,6 @@
 # LocationSp_Next Improved
 
-Maintained by [Ayc-Gh](https://github.com/Ayc-Gh), synchronized with [ZenQing-Tao/LocationSp_Next v3.2.0](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.2.0), upstream commit `9bd39671138d7241621cd43941ca4834aa96b587`. This is an independent modification, not an official upstream release. Original attribution, `LICENSE`, `NOTICE`, and upstream documentation are retained.
+Maintained by [Ayc-Gh](https://github.com/Ayc-Gh), synchronized with [ZenQing-Tao/LocationSp_Next v3.2.0](https://github.com/ZenQing-Tao/LocationSp_Next/tree/v3.2.0), upstream commit `9bd39671138d7241621cd43941ca4834aa96b587`. This is an independent modification, not an official upstream release. Original attribution, `LICENSE`, `NOTICE`, and license information are retained.
 
 ## Upstream sync (2026-11-06)
 
@@ -164,16 +164,6 @@ cp local.yml.example local.yml          # optional: your own keys
 
 ## Credits
 
-### Donors
-
-Thanks to the following friends for supporting this project. Donations are entirely voluntary and **do not constitute a purchase of services, nor do they grant any extra features, authorization, or commitment**; everyone using this project enjoys the same rights.
-
-| Donor | Date |
-| --- | --- |
-| <img src="https://github.com/kgyyds.png?size=64" width="24" height="24" alt="kgyyds" /> [@kgyyds](https://github.com/kgyyds) | 2026-10 |
-
-> GitHub accounts left in the donation note are listed here with avatar and name; otherwise only the name is recorded.
-
 ### Contributors & License
 
 - The app icon is an original work of this project, inspired by the 「缩地青符」 (Shrink-Earth Talisman).
@@ -183,23 +173,3 @@ Thanks to the following friends for supporting this project. Donations are entir
 - Distributed under [GNU GPLv3](./LICENSE); see [`NOTICE`](./NOTICE) for the modification record.
 
 **When distributing binaries, provide the corresponding complete source code and retain `LICENSE`, `NOTICE`, and the attribution and disclaimer above.**
-
----
-
-## ☕ Buy me a coffee
-
-If this project has been helpful to you, you are welcome to buy me a coffee. Your support helps keep it maintained.
-
-<p align="center">
-  <img src="./docs/donate/usdt-trc20.jpg" alt="USDT (TRC20) donation QR code" width="320" />
-</p>
-
-**USDT (TRC-20)**
-
-```
-THLn3ZeUEGqMZWxfjxxFqgpMkrSHFhn9uc
-```
-
-> This address accepts **USDT on TRC-20 only**. Do not send any other token or use another network (e.g. ERC-20 / BEP-20) — transfers sent the wrong way cannot be recovered.
->
-> Donations are entirely optional and unlock nothing. This project remains fully free and open source; a donation does not constitute any commercial partnership, custom support, or service commitment.
